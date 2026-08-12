@@ -12,33 +12,30 @@ function createHelpTocTask(~)
 repoRoot=pwd;
 helpPath=fullfile(repoRoot,'docs','html', '*.html');
 
-%% FIND HTML FILES
+
 fileGlob = matlab.buildtool.io.FileCollection.fromPaths(string(helpPath));
 allHTMLFiles = fileGlob.paths;
 DemoFiles = allHTMLFiles(allHTMLFiles.contains("DEMO")>0);
 HelpFiles = allHTMLFiles(allHTMLFiles.contains("HELP")>0);
 StartFile = allHTMLFiles(allHTMLFiles.contains("GIBBON_product_page")>0);
 
-% Create the document with <toc version="2.0"> as the root element
 tocDom = matlab.io.xml.dom.Document('toc');
 tocDocument = tocDom.getDocumentElement;
 tocDocument.setAttribute('version','2.0');
 
-% TOP SECTION: The GIBBON Toolbox
 gibbonToc = tocDom.createElement('tocitem');
 [~,currentName, extension]=fileparts(StartFile(1));
 gibbonToc.setAttribute("target", currentName + extension);
 gibbonToc.appendChild(tocDom.createTextNode('The GIBBON Toolbox'));
 tocDocument.appendChild(gibbonToc);
 
-% GETTING STARTED SECTION
+
 GettingStartedToc = tocDom.createElement('tocitem');
 GettingStartedToc.setAttribute('target','GettingStarted.html');
 GettingStartedToc.setAttribute('image','HelpIcon.GETTING_STARTED');
 GettingStartedToc.appendChild(tocDom.createTextNode('Getting Started'));
 gibbonToc.appendChild(GettingStartedToc);
 
-% FUNCTION HELP SECTION
 functiolistToc = tocDom.createElement('tocitem');
 functiolistToc.setAttribute('target','funclist.html');
 functiolistToc.setAttribute('image','HelpIcon.FUNCTION');
@@ -52,7 +49,6 @@ for q=HelpFiles
 end
 gibbonToc.appendChild(functiolistToc);
 
-% DEMO EXAMPLES SECTION
 examplesToc = tocDom.createElement('tocitem');
 examplesToc.setAttribute('target','gibbonExamples.html');
 examplesToc.setAttribute('image','HelpIcon.EXAMPLES');
@@ -66,7 +62,6 @@ for q=DemoFiles
 end
 gibbonToc.appendChild(examplesToc);
 
-%% WRITE helptoc.xml
 saveName=fullfile(repoRoot,'docs','html','helptoc1.xml');
 writer = matlab.io.xml.dom.DOMWriter;
 writer.Configuration.FormatPrettyPrint = true;

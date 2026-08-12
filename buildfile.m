@@ -1,7 +1,4 @@
 function plan = buildfile
-import matlab.buildtool.tasks.CodeIssuesTask
-import matlab.buildtool.tasks.TestTask
-
 % Create a plan from local functions
 plan = buildplan(localfunctions);
 

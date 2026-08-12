@@ -40,6 +40,24 @@ function installGibbon(interactive, FEBioPath, profileNameVCW)
         mkdir(tempPath)
     end
 
+    %% Cleanup previous installs
+
+    % Make sure we restore the warning settings
+    ws = warning();
+    restoreWarnings = onCleanup(@() warning(ws));
+
+    if contains(path, gibbonSettings.gibbonPath)
+        updateStatus('Removing existing gibbon paths...');
+        warning('off','MATLAB:rmpath:DirNotFound')
+        rmpath(genpath(gibbonPath))
+
+        if contains(path, fullfile('gibbon','lib'))
+            warning(['A previous installation of GIBBON might still be present on the MATLAB path. '
+            'Please check your MATLAB path and remove any outdated GIBBON paths.']);
+        end
+        addpath(fullfile(gibbonPath,'lib'));
+    end
+
     %% Add paths
 
     top_statement = 'Adding gibbon paths. Please wait...';
@@ -50,7 +68,6 @@ function installGibbon(interactive, FEBioPath, profileNameVCW)
     addpath(pathNames{:})
 
     % Try to make sure we save the path...
-    ws = warning();
     warning('error','MATLAB:SavePath:PathNotSaved');
 
     try
@@ -91,6 +108,13 @@ function installGibbon(interactive, FEBioPath, profileNameVCW)
     else
         disp('Gibbon Settings:')
         disp(opts);
+    end
+
+    %% Check for Toolboxes
+    requirements = {'Image Processing Toolbox', 'Statistics and Machine Learning Toolbox', 'Symbolic Math Toolbox', 'Curve Fitting Toolbox', 'Parallel Computing Toolbox'};
+    fulfilled = ismember(requirements, {ver().Name});
+    if ~all(fulfilled)
+        warning('GIBBON:ToolboxCheck', 'Some required toolboxes might be missing:\n\t%s', strjoin(requirements(~fulfilled),'\n\t'));
     end
 
     %% Unzip compressed data
